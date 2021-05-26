@@ -17,7 +17,7 @@ import {
   deleteNode,
   findMaxId,
   addNode,
-} from './index';
+} from './utils';
 
 describe('initStateWithUniqIds', () => {
   it('add uniq ids to all nodes', () => {
