@@ -16,7 +16,7 @@ import {
   toggleOpen,
 } from './utils';
 
-const useTreeState = ({ data, options, customReducers }) => {
+const useTreeState = ({ data, options = {}, customReducers = {} }) => {
   const {
     initCheckedStatus = 'unchecked',
     initOpenStatus = 'open',
@@ -58,6 +58,8 @@ const useTreeState = ({ data, options, customReducers }) => {
           initState = setAllOpenStatus(initState, true);
         }
     }
+
+    return initState;
   };
 
   useEffect(() => {
@@ -92,6 +94,12 @@ const useTreeState = ({ data, options, customReducers }) => {
 
   const getExternalReducer = reducer => (path, ...params) => setTreeState(reducer(treeState, path, ...params));
 
+  const _customReducers = Object.fromEntries(
+    Object.entries(customReducers).map(
+      ([name, f]) => ([name, getExternalReducer(f)])
+    )
+  );
+
   const reducers = {
     setTreeState,
     checkNode: getExternalReducer(checkNode),
@@ -99,18 +107,12 @@ const useTreeState = ({ data, options, customReducers }) => {
     deleteNode: getExternalReducer(deleteNode),
     addNode: getExternalReducer(addNode),
     toggleOpen: getExternalReducer(toggleOpen),
+    ..._customReducers,
   };
-
-  const _customReducers = Object.fromEntries(
-    Object.entries(customReducers).map(
-      ([name, f]) => ([name, getExternalReducer(f)])
-    )
-  );
 
   return [
     treeState,
     reducers,
-    _customReducers,
   ];
 };
 
