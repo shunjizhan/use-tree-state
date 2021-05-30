@@ -44,6 +44,58 @@ const testData = {
   ],
 };
 
+const testDataWithId = {
+  name: 'All Cryptos',
+  _id: 0,
+  children: [
+    { name: 'Bitcoin', _id: 1 },
+    { name: 'Etherium', _id: 2 },
+    { name: 'Polkadot', _id: 3 },
+    {
+      name: 'POW',
+      _id: 4,
+      children: [
+        { name: 'Bitcoin', _id: 5 },
+        { name: 'Litecoin', _id: 6 },
+        { name: 'Bitcoin Cash', _id: 7 },
+      ],
+    },
+    {
+      name: 'Public Chains',
+      _id: 8,
+      children: [
+        { name: 'Ripple', _id: 9 },
+        { name: 'Chainlink', _id: 10 },
+        {
+          name: 'POW',
+          _id: 11,
+          children: [
+            { name: 'Bitcoin', _id: 12 },
+            { name: 'Litecoin', _id: 13 },
+            { name: 'Bitcoin Cash', _id: 14 },
+          ],
+        },
+        {
+          name: 'POS',
+          _id: 15,
+          children: [
+            { name: 'Etherium', _id: 16 },
+            { name: 'EOS', _id: 17 },
+            {
+              name: 'Crosschain',
+              _id: 18,
+              children: [
+                { name: 'Polkadot', _id: 19 },
+                { name: 'Cosmos', _id: 20 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const initializedTestData = {
   name: 'All Cryptos',
   _id: 0,
@@ -110,5 +162,6 @@ const initializedTestData = {
 
 export {
   testData,
+  testDataWithId,
   initializedTestData,
 };

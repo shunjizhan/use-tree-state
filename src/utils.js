@@ -1,5 +1,27 @@
 export const deepClone = x => JSON.parse(JSON.stringify(x));
 
+export const findTargetNode = (root, path) => {
+  let curNode = root;
+  for (const idx of path) {
+    const { children } = curNode;
+    if (idx >= children.length || idx < 0) {
+      throw new Error('finding node failed: invalid path!!');
+    }
+    curNode = children[idx];
+  }
+
+  return curNode;
+};
+
+export const findMaxId = rootNode => {
+  const { children } = rootNode;
+  const curId = rootNode._id;
+
+  return children
+    ? Math.max(...[curId, ...children.map(findMaxId)])
+    : curId;
+};
+
 // deepclone the initial data for internal use, and assign uniq ids to each node
 // deepclone only happens once at initialization, other operations will be in-place
 export const initStateWithUniqIds = rootNode => {
@@ -34,9 +56,7 @@ const setStatusDown = (node, status) => {
 };
 
 // set checked status for all nodes
-export const setAllCheckedStatus = (rootNode, status) => (
-  setStatusDown(rootNode, status)
-);
+export const setAllCheckedStatus = setStatusDown;
 
 // calculate the check status of a node based on the check status of it's children
 export const getNewCheckStatus = node => {
@@ -87,11 +107,8 @@ export const checkNode = (rootNode, path, status) => {
 };
 
 export const renameNode = (rootNode, path, newName) => {
-  let curNode = rootNode;
-  for (const idx of path) {
-    curNode = curNode.children[idx];
-  }
-  curNode.name = newName;
+  const targetNode = findTargetNode(rootNode, path);
+  targetNode.name = newName;
 
   return { ...rootNode };
 };
@@ -121,56 +138,44 @@ export const deleteNode = (rootNode, path) => {
   return { ...rootNode };
 };
 
-export const findMaxId = rootNode => {
-  const { children } = rootNode;
-  const curId = rootNode._id;
-
-  return children
-    ? Math.max(...[curId, ...children.map(findMaxId)])
-    : curId;
-};
-
 export const addNode = (rootNode, path, type = 'file') => {
   const id = findMaxId(rootNode) + 1;
   const isFile = type === 'file';
 
-  let curNode = rootNode;
-  for (const idx of path) {
-    curNode = curNode.children[idx];
-  }
+  const targetNode = findTargetNode(rootNode, path);
 
-  const { children } = curNode;
+  const { children } = targetNode;
   if (children) {
     if (isFile) {
       // files goes to front
       children.unshift({
         _id: id,
         name: 'new file',
-        checked: Math.floor(curNode.checked),
+        checked: Math.floor(targetNode.checked),
       });
     } else {
       // folder goes to back
       children.push({
         _id: id,
         name: 'new folder',
-        checked: Math.floor(curNode.checked),
+        checked: Math.floor(targetNode.checked),
         children: [],
       });
     }
+  } else {
+    throw new Error('can\'t add node to a file!!');
   }
 
   return { ...rootNode };
 };
 
 export const toggleOpen = (rootNode, path, isOpen) => {
-  let curNode = rootNode;
-  for (const idx of path) {
-    curNode = curNode.children[idx];
-  }
+  const targetNode = findTargetNode(rootNode, path);
 
-  if (curNode.children) {
-    // only parent node can have isOpen property
-    curNode.isOpen = isOpen;
+  if (targetNode.children) {
+    targetNode.isOpen = isOpen;
+  } else {
+    throw new Error('only parent node (folder) can be opened!!');
   }
 
   return { ...rootNode };

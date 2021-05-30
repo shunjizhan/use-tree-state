@@ -5,6 +5,7 @@ import {
 } from './testData';
 import {
   deepClone,
+  findTargetNode,
   initStateWithUniqIds,
   checkNode,
   setAllCheckedStatus,
@@ -21,13 +22,13 @@ import {
 
 describe('initStateWithUniqIds', () => {
   it('add uniq ids to all nodes', () => {
-    expect(initStateWithUniqIds(testData)).toEqual(testDataWithId);
+    expect(initStateWithUniqIds(deepClone(testData))).toEqual(testDataWithId);
     expect(initStateWithUniqIds({})).toEqual({ _id: 0 });
   });
 });
 
 describe('setAllCheckedStatus', () => {
-  const initData = setAllCheckedStatus(initStateWithUniqIds(testData), 0);
+  const initData = setAllOpenStatus(setAllCheckedStatus(initStateWithUniqIds(deepClone(testData)), 0), true);
 
   it('set checked status to 0 for all nodes', () => {
     expect(initData).toEqual(initializedTestData);
@@ -93,7 +94,7 @@ describe('getNewCheckStatus', () => {
 });
 
 describe('checkNode', () => {
-  const initData = setAllCheckedStatus(initStateWithUniqIds(testData), 0);
+  const initData = setAllCheckedStatus(initStateWithUniqIds(deepClone(testData)), 0);
 
   describe('when check root node', () => {
     it('returns correct state', () => {
@@ -212,15 +213,24 @@ describe('toggleOpen', () => {
     ],
   };
 
-  it('don\'t do anything for file component', () => {
-    const expected = node;
+  it('throw error for file component', () => {
+    try {
+      toggleOpen(node, [0], true);
+    } catch (e) {
+      expect(e.message).toEqual('only parent node (folder) can be opened!!');
+    }
 
-    expect(toggleOpen(node, [0], true)).toEqual(expected);
-    expect(toggleOpen(node, [0], false)).toEqual(expected);
-    expect(toggleOpen(node, [1], true)).toEqual(expected);
-    expect(toggleOpen(node, [1], false)).toEqual(expected);
-    expect(toggleOpen(node, [2, 1], true)).toEqual(expected);
-    expect(toggleOpen(node, [2, 1], false)).toEqual(expected);
+    try {
+      toggleOpen(node, [1], false);
+    } catch (e) {
+      expect(e.message).toEqual('only parent node (folder) can be opened!!');
+    }
+
+    try {
+      toggleOpen(node, [2, 1], true);
+    } catch (e) {
+      expect(e.message).toEqual('only parent node (folder) can be opened!!');
+    }
   });
 
   it('correctly toggle first layer', () => {
@@ -1021,6 +1031,48 @@ describe('addNode', () => {
 
     expect(addNode(deepClone(node), [1], 'file')).toEqual(addFileExpected);
     expect(addNode(deepClone(node), [1], 'folder')).toEqual(addFolderExpected);
+  });
+
+  describe('when adding node to a file', () => {
+    it('throws correct message', () => {
+      const node = {
+        _id: 1,
+        children: [
+          { _id: 2 },
+        ],
+      };
+      try {
+        addNode(deepClone(node), [0], 'file');
+      } catch (e) {
+        expect(e.message).toEqual('can\'t add node to a file!!');
+      }
+    });
+  });
+});
+
+describe('findTargetNode', () => {
+  describe('valid path', () => {
+    it('returns correct node', () => {
+      expect(findTargetNode(testData, [])).toEqual(testData);
+      expect(findTargetNode(testData, [2])).toEqual(testData.children[2]);
+      expect(findTargetNode(testData, [3, 1])).toEqual(testData.children[3].children[1]);
+    });
+  });
+
+  describe('invalid path', () => {
+    it('throws correct message', () => {
+      expect(
+        () => findTargetNode(testData, [1000]),
+      ).toThrowError('finding node failed: invalid path!!');
+
+      expect(
+        () => findTargetNode(testData, [3, 932]),
+      ).toThrowError('finding node failed: invalid path!!');
+
+      expect(
+        () => findTargetNode(testData, [-1]),
+      ).toThrowError('finding node failed: invalid path!!');
+    });
   });
 });
 

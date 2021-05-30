@@ -48,7 +48,7 @@ const useTreeState = ({ data, options = {}, customReducers = {} }) => {
         initState = setAllOpenStatus(initState, true);
         break;
 
-      case 'close':
+      case 'closed':
         initState = setAllOpenStatus(initState, false);
         break;
 
@@ -66,31 +66,6 @@ const useTreeState = ({ data, options = {}, customReducers = {} }) => {
     const initState = initTreeState(data, initCheckedStatus, initOpenStatus);
     setTreeState(initState);
   }, [data, initCheckedStatus, initOpenStatus]);
-
-  // const handleCheck = (path, status) => {
-  //   const newState = checkNode(treeState, path, status);
-  //   setTreeState(newState);
-  // };
-
-  // const handleRename = (path, newName) => {
-  //   const newState = renameNode(treeState, path, newName);
-  //   setTreeState(newState);
-  // };
-
-  // const handleDelete = path => {
-  //   const newState = deleteNode(treeState, path);
-  //   setTreeState(newState);
-  // };
-
-  // const handleAddNode = (path, type = 'file') => {
-  //   const newState = addNode(treeState, path, type);
-  //   setTreeState(newState);
-  // };
-
-  // const handleToggleOpen = (path, isOpen) => {
-  //   const newState = toggleOpen(treeState, path, isOpen);
-  //   setTreeState(newState);
-  // };
 
   const getExternalReducer = reducer => (path, ...params) => setTreeState(reducer(treeState, path, ...params));
 
@@ -110,10 +85,10 @@ const useTreeState = ({ data, options = {}, customReducers = {} }) => {
     ..._customReducers,
   };
 
-  return [
+  return {
     treeState,
     reducers,
-  ];
+  };
 };
 
 export default useTreeState;
