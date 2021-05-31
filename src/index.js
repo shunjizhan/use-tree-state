@@ -16,13 +16,26 @@ import {
   toggleOpen,
 } from './utils';
 
-const useTreeState = ({ data, options = {}, customReducers = {} }) => {
+export const getEvent = (eventName, path, ...params) => ({
+  type: eventName,
+  path,
+  params,
+});
+
+const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => {
   const {
     initCheckedStatus = 'unchecked',
     initOpenStatus = 'open',
   } = options;
 
   const [treeState, setTreeState] = useState(null);
+  const [event, setEvent] = useState(null);
+
+  useEffect(() => {
+    if (typeof onChange === 'function' && treeState && event) {
+      onChange(treeState, event);
+    }
+  }, [treeState, event]);
 
   const initTreeState = (_data, _initCheckedStatus, _initOpenStatus) => {
     let initState = initStateWithUniqIds(_data);
@@ -67,21 +80,34 @@ const useTreeState = ({ data, options = {}, customReducers = {} }) => {
     setTreeState(initState);
   }, [data, initCheckedStatus, initOpenStatus]);
 
-  const getExternalReducer = reducer => (path, ...params) => setTreeState(reducer(treeState, path, ...params));
+  const _setTreeState = state => {
+    const e = getEvent('setTreeState', null, state);
+
+    setEvent(e);
+    setTreeState(state);
+  };
+
+  const getExternalReducer = (reducer, name) => (path, ...params) => {
+    const e = getEvent(name, path, ...params);
+    const newState = reducer(treeState, path, ...params);
+
+    setEvent(e);
+    setTreeState(newState);
+  };
 
   const _customReducers = Object.fromEntries(
     Object.entries(customReducers).map(
-      ([name, f]) => ([name, getExternalReducer(f)])
+      ([name, f]) => ([name, getExternalReducer(f, name)])
     )
   );
 
   const reducers = {
-    setTreeState,
-    checkNode: getExternalReducer(checkNode),
-    renameNode: getExternalReducer(renameNode),
-    deleteNode: getExternalReducer(deleteNode),
-    addNode: getExternalReducer(addNode),
-    toggleOpen: getExternalReducer(toggleOpen),
+    setTreeState: _setTreeState,
+    checkNode: getExternalReducer(checkNode, 'checkNode'),
+    renameNode: getExternalReducer(renameNode, 'renameNode'),
+    deleteNode: getExternalReducer(deleteNode, 'deleteNode'),
+    addNode: getExternalReducer(addNode, 'addNode'),
+    toggleOpen: getExternalReducer(toggleOpen, 'toggleOpen'),
     ..._customReducers,
   };
 

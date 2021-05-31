@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import useTreeState from './index';
+import useTreeState, { getEvent } from './index';
 import {
   testData,
   initializedTestData,
@@ -201,15 +201,15 @@ test('set tree state directly', () => {
 });
 
 test('custom reducer', () => {
-  const renameToPikachu = (root, path) => {
+  const renameToPikachuNTimes = (root, path, n) => {
     const targetNode = findTargetNode(root, path);
-    targetNode.name = 'pikachu';
+    targetNode.name = 'pikachu'.repeat(n);
 
     return { ...root };
   };
 
   const customReducers = {
-    renameToPikachu,
+    renameToPikachuNTimes,
   };
 
   const { result } = renderHook(() => useTreeState({
@@ -219,12 +219,153 @@ test('custom reducer', () => {
   const { treeState, reducers } = result.current;
 
   act(() => {
-    reducers.renameToPikachu([]);
+    reducers.renameToPikachuNTimes([], 2);
   });
-  expect(treeState.name).toEqual('pikachu');
+  expect(treeState.name).toEqual('pikachupikachu');
 
   act(() => {
-    reducers.renameToPikachu([3, 1]);
+    reducers.renameToPikachuNTimes([3, 1], 3);
   });
-  expect(treeState.children[3].children[1].name).toEqual('pikachu');
+  expect(treeState.children[3].children[1].name).toEqual('pikachupikachupikachu');
+});
+
+describe('getEvent', () => {
+  const eventName = 'Goku';
+  const path = [1];
+  test('when there is no extra params', () => {
+    expect(getEvent(eventName, path)).toEqual({
+      type: eventName,
+      path,
+      params: [],
+    });
+
+    expect(getEvent(eventName, null)).toEqual({
+      type: eventName,
+      path: null,
+      params: [],
+    });
+  });
+
+  test('when there are extra params', () => {
+    const extra = 'Cosmos';
+    const state = {};
+
+    expect(getEvent(eventName, path, state, extra)).toEqual({
+      type: eventName,
+      path,
+      params: [state, extra],
+    });
+
+    expect(getEvent(eventName, null, state, extra)).toEqual({
+      type: eventName,
+      path: null,
+      params: [state, extra],
+    });
+  });
+});
+
+test('onChange', () => {
+  let expectedState;
+  const onChange = jest.fn();
+
+  const renameToPikachuNTimes = (root, path, n) => {
+    const targetNode = findTargetNode(root, path);
+    targetNode.name = 'pikachu' * n;
+
+    return { ...root };
+  };
+
+  const customReducers = {
+    renameToPikachuNTimes,
+  };
+
+  const { result } = renderHook(() => useTreeState({
+    data: testData,
+    onChange,
+    customReducers,
+  }));
+  const { reducers } = result.current;
+
+  const newState = {
+    name: 'pikachu',
+  };
+  const path = [];
+  const newName = 'Republic of Gamers';
+
+  expectedState = checkNode(deepClone(result.current.treeState), path, 1);
+  act(() => { reducers.checkNode(path, 1); });
+  expect(onChange.mock.calls[0]).toEqual([
+    expectedState,
+    {
+      type: 'checkNode',
+      path,
+      params: [1],
+    },
+  ]);
+
+  expectedState = renameNode(deepClone(result.current.treeState), path, newName);
+  act(() => { reducers.renameNode(path, newName); });
+  expect(onChange.mock.calls[1]).toEqual([
+    expectedState,
+    {
+      type: 'renameNode',
+      path,
+      params: [newName],
+    },
+  ]);
+
+  expectedState = deleteNode(deepClone(result.current.treeState), path);
+  act(() => { reducers.deleteNode(path); });
+  expect(onChange.mock.calls[2]).toEqual([
+    expectedState,
+    {
+      type: 'deleteNode',
+      path,
+      params: [],
+    },
+  ]);
+
+  expectedState = addNode(deepClone(result.current.treeState), path, 'file');
+  act(() => { reducers.addNode(path, 'file'); });
+  expect(onChange.mock.calls[3]).toEqual([
+    expectedState,
+    {
+      type: 'addNode',
+      path,
+      params: ['file'],
+    },
+  ]);
+
+  expectedState = addNode(deepClone(result.current.treeState), path, 'folder');
+  act(() => { reducers.addNode(path, 'folder'); });
+  expect(onChange.mock.calls[4]).toEqual([
+    expectedState,
+    {
+      type: 'addNode',
+      path,
+      params: ['folder'],
+    },
+  ]);
+
+  expectedState = renameToPikachuNTimes(deepClone(result.current.treeState), path, 5);
+  act(() => { reducers.renameToPikachuNTimes(path, 5); });
+  expect(onChange.mock.calls[5]).toEqual([
+    renameToPikachuNTimes(deepClone(result.current.treeState), path, 5),
+    {
+      type: 'renameToPikachuNTimes',
+      path,
+      params: [5],
+    },
+  ]);
+
+  expectedState = newState;
+  act(() => { reducers.setTreeState(newState); });
+  expect(onChange.mock.calls[6]).toEqual([
+    expectedState,
+    {
+      type: 'setTreeState',
+      path: null,
+      params: [newState],
+    },
+  ]);
 });
