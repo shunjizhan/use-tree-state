@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import useTreeState, { getEvent } from './index';
+import useTreeState, { getEvent } from '../index';
 import {
   testData,
   initializedTestData,
@@ -16,7 +16,7 @@ import {
   renameNode,
   deleteNode,
   addNode,
-} from './utils';
+} from '../utils';
 
 describe('initialize tree state', () => {
   test('default options', () => {

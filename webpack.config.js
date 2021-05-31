@@ -4,9 +4,9 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = {
   mode: 'production',
-  entry: path.resolve(__dirname, '../src/index.js'),
+  entry: path.resolve(__dirname, './src/index.js'),
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(__dirname, './dist'),
     filename: 'use-tree-state.bundle.js',
     library: 'use-tree-state',    // to be available in global scope
     libraryTarget: 'umd',

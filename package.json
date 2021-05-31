@@ -10,7 +10,7 @@
   "scripts": {
     "prepublish": "yarn build",
     "prebuild": "rm -rf dist/",
-    "build": "webpack --config config/webpack.prod.config.js",
+    "build": "webpack --config webpack.config.js",
     "lint": "eslint src/ --ext .js,.jsx",
     "test": "jest --collect-coverage"
   },
