@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import useTreeState, { getEvent } from '../index';
+import useTreeState from '../index';
 import {
   testData,
   initializedTestData,
@@ -227,41 +227,6 @@ test('custom reducer', () => {
     reducers.renameToPikachuNTimes([3, 1], 3);
   });
   expect(treeState.children[3].children[1].name).toEqual('pikachupikachupikachu');
-});
-
-describe('getEvent', () => {
-  const eventName = 'Goku';
-  const path = [1];
-  test('when there is no extra params', () => {
-    expect(getEvent(eventName, path)).toEqual({
-      type: eventName,
-      path,
-      params: [],
-    });
-
-    expect(getEvent(eventName, null)).toEqual({
-      type: eventName,
-      path: null,
-      params: [],
-    });
-  });
-
-  test('when there are extra params', () => {
-    const extra = 'Cosmos';
-    const state = {};
-
-    expect(getEvent(eventName, path, state, extra)).toEqual({
-      type: eventName,
-      path,
-      params: [state, extra],
-    });
-
-    expect(getEvent(eventName, null, state, extra)).toEqual({
-      type: eventName,
-      path: null,
-      params: [state, extra],
-    });
-  });
 });
 
 test('onChange', () => {

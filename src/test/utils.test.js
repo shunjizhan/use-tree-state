@@ -9,7 +9,6 @@ import {
   initStateWithUniqIds,
   checkNode,
   setAllCheckedStatus,
-  isValidCheckedStatus,
   getNewCheckStatus,
   toggleOpen,
   setAllOpenStatus,
@@ -18,12 +17,28 @@ import {
   deleteNode,
   findMaxId,
   addNode,
+  getEvent,
+  initializeTreeState,
 } from '../utils';
 
 describe('initStateWithUniqIds', () => {
   it('add uniq ids to all nodes', () => {
     expect(initStateWithUniqIds(deepClone(testData))).toEqual(testDataWithId);
     expect(initStateWithUniqIds({})).toEqual({ _id: 0 });
+  });
+});
+
+describe('initializeTreeState', () => {
+  test('correctly intialize tree state', () => {
+    expect(initializeTreeState(deepClone(testData))).toEqual(initializedTestData);
+  });
+
+  test('with invalid custom options', () => {
+    expect(initializeTreeState(deepClone(testData), 'unchecked', 'custom')).toEqual(initializedTestData);
+  });
+
+  test('with valid custom options', () => {
+    expect(initializeTreeState(deepClone(initializedTestData), 'custom', 'custom')).toEqual(initializedTestData);
   });
 });
 
@@ -1076,6 +1091,37 @@ describe('findTargetNode', () => {
   });
 });
 
-describe('isValidCheckedStatus', () => {
-  expect(isValidCheckedStatus(testData)).toEqual(true);
+describe('getEvent', () => {
+  const eventName = 'Goku';
+  const path = [1];
+  test('when there is no extra params', () => {
+    expect(getEvent(eventName, path)).toEqual({
+      type: eventName,
+      path,
+      params: [],
+    });
+
+    expect(getEvent(eventName, null)).toEqual({
+      type: eventName,
+      path: null,
+      params: [],
+    });
+  });
+
+  test('when there are extra params', () => {
+    const extra = 'Cosmos';
+    const state = {};
+
+    expect(getEvent(eventName, path, state, extra)).toEqual({
+      type: eventName,
+      path,
+      params: [state, extra],
+    });
+
+    expect(getEvent(eventName, null, state, extra)).toEqual({
+      type: eventName,
+      path: null,
+      params: [state, extra],
+    });
+  });
 });

@@ -199,8 +199,8 @@ export const isValidOpenStatus = node => {
     isOpen,
   } = node;
 
-  if (children && isOpen === undefined) return false;
-  if (!children && isOpen !== undefined) return false;
+  if (children && isOpen === undefined) return false;   // parent node needs to have 'isOpen'
+  if (!children && isOpen !== undefined) return false;  // children can't have 'isOpen'
 
   if (children) {
     for (const child of children) {
@@ -211,6 +211,43 @@ export const isValidOpenStatus = node => {
   return true;
 };
 
-// check if the initial custom checked status is valid
-// TODO: implement isValidCheckedStatus()
-export const isValidCheckedStatus = rootNode => true;   /* eslint-disable-line */
+export const getEvent = (eventName, path, ...params) => ({
+  type: eventName,
+  path,
+  params,
+});
+
+export const initializeTreeState = (data, initCheckedStatus = 'unchecked', initOpenStatus = 'open') => {
+  let initState = initStateWithUniqIds(data);
+
+  switch (initCheckedStatus) {
+    case 'unchecked':
+      initState = setAllCheckedStatus(initState, 0);
+      break;
+
+    case 'checked':
+      initState = setAllCheckedStatus(initState, 1);
+      break;
+
+    default:
+      break;
+  }
+
+  switch (initOpenStatus) {
+    case 'open':
+      initState = setAllOpenStatus(initState, true);
+      break;
+
+    case 'closed':
+      initState = setAllOpenStatus(initState, false);
+      break;
+
+    default:
+      if (!isValidOpenStatus(initState)) {
+        console.log('custom open status is invalid! Fell back to all opened.');
+        initState = setAllOpenStatus(initState, true);
+      }
+  }
+
+  return initState;
+};
