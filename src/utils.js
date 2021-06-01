@@ -250,3 +250,27 @@ export const initializeTreeState = (data, initCheckedStatus = 'unchecked', initO
 
   return initState;
 };
+
+export const findAllTargetPathByProp = (root, propName, targetVal) => {
+  const res = [];
+
+  const _traverse = (node, curPath) => {
+    if (node[propName] === targetVal) {
+      res.push(deepClone(curPath));
+    }
+
+    const { children } = node;
+    children && children.forEach((n, i) => _traverse(n, [...curPath, i]));
+  };
+
+  _traverse(root, []);
+
+  return res;
+};
+
+export const findTargetPathByProp = (root, propName, targetVal) => {
+  const allPaths = findAllTargetPathByProp(root, propName, targetVal);
+  return allPaths.length > 0
+    ? allPaths[0]
+    : null;
+};

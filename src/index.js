@@ -11,6 +11,9 @@ import {
   toggleOpen,
   getEvent,
   initializeTreeState,
+  findTargetNode,
+  findAllTargetPathByProp,
+  findTargetPathByProp,
 } from './utils';
 
 const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => {
@@ -70,3 +73,8 @@ const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => 
 };
 
 export default useTreeState;
+export {
+  findTargetNode,
+  findAllTargetPathByProp,
+  findTargetPathByProp,
+};

@@ -19,6 +19,8 @@ import {
   addNode,
   getEvent,
   initializeTreeState,
+  findAllTargetPathByProp,
+  findTargetPathByProp,
 } from '../utils';
 
 describe('initStateWithUniqIds', () => {
@@ -1123,5 +1125,49 @@ describe('getEvent', () => {
       path: null,
       params: [state, extra],
     });
+  });
+});
+
+describe('findAllTargetPathByProp', () => {
+  test('when not found', () => {
+    const expected = [];
+
+    expect(findAllTargetPathByProp(testData, 'name', '123')).toEqual(expected);
+    expect(findAllTargetPathByProp(testData, 'abc', 'bitcoin')).toEqual(expected);
+    expect(findAllTargetPathByProp({ name: 'haha' }, 'name', 'h')).toEqual(expected);
+  });
+
+  test('when found', () => {
+    expect(findAllTargetPathByProp(testData, 'name', 'All Cryptos')).toEqual([
+      [],
+    ]);
+
+    expect(findAllTargetPathByProp(testData, 'name', 'Bitcoin')).toEqual([
+      [0],
+      [3, 0],
+      [4, 2, 0],
+    ]);
+
+    expect(findAllTargetPathByProp(testData, 'name', 'Cosmos')).toEqual([
+      [4, 3, 2, 1],
+    ]);
+  });
+});
+
+describe('findTargetPathByProp', () => {
+  test('when not found', () => {
+    const expected = null;
+
+    expect(findTargetPathByProp(testData, 'name', '123')).toEqual(expected);
+    expect(findTargetPathByProp(testData, 'abc', 'bitcoin')).toEqual(expected);
+    expect(findTargetPathByProp({ name: 'haha' }, 'name', 'h')).toEqual(expected);
+  });
+
+  test('when found', () => {
+    expect(findTargetPathByProp(testData, 'name', 'All Cryptos')).toEqual([]);
+
+    expect(findTargetPathByProp(testData, 'name', 'Bitcoin')).toEqual([0]);
+
+    expect(findTargetPathByProp(testData, 'name', 'Cosmos')).toEqual([4, 3, 2, 1]);
   });
 });
