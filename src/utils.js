@@ -138,15 +138,14 @@ export const deleteNode = (rootNode, path) => {
   return { ...rootNode };
 };
 
-export const addNode = (rootNode, path, type = 'file') => {
+export const addNode = (rootNode, path, hasChildren = false) => {
   const id = findMaxId(rootNode) + 1;
-  const isFile = type === 'file';
 
   const targetNode = findTargetNode(rootNode, path);
 
   const { children } = targetNode;
   if (children) {
-    if (isFile) {
+    if (!hasChildren) {
       // files goes to front
       children.unshift({
         _id: id,

@@ -882,8 +882,8 @@ describe('addNode', () => {
       ],
     };
 
-    expect(addNode(deepClone(node), [1], 'file')).toEqual(addFileExpected);
-    expect(addNode(deepClone(node), [1], 'folder')).toEqual(addFolderExpected);
+    expect(addNode(deepClone(node), [1], false)).toEqual(addFileExpected);
+    expect(addNode(deepClone(node), [1], true)).toEqual(addFolderExpected);
   });
 
   describe('when parent folder is half-checked', () => {
@@ -963,8 +963,8 @@ describe('addNode', () => {
       ],
     };
 
-    expect(addNode(deepClone(node), [1], 'file')).toEqual(addFileExpected);
-    expect(addNode(deepClone(node), [1], 'folder')).toEqual(addFolderExpected);
+    expect(addNode(deepClone(node), [1], false)).toEqual(addFileExpected);
+    expect(addNode(deepClone(node), [1], true)).toEqual(addFolderExpected);
   });
 
   describe('when parent folder is unchecked', () => {
@@ -1044,8 +1044,8 @@ describe('addNode', () => {
       ],
     };
 
-    expect(addNode(deepClone(node), [1], 'file')).toEqual(addFileExpected);
-    expect(addNode(deepClone(node), [1], 'folder')).toEqual(addFolderExpected);
+    expect(addNode(deepClone(node), [1], false)).toEqual(addFileExpected);
+    expect(addNode(deepClone(node), [1], true)).toEqual(addFolderExpected);
   });
 
   describe('when adding node to a file', () => {
@@ -1057,7 +1057,7 @@ describe('addNode', () => {
         ],
       };
       try {
-        addNode(deepClone(node), [0], 'file');
+        addNode(deepClone(node), [0], false);
       } catch (e) {
         expect(e.message).toEqual('can\'t add node to a file!!');
       }

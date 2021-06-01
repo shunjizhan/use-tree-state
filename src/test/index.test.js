@@ -142,20 +142,20 @@ test('add node', () => {
   const { addNode: add } = reducers;
   let expected;
 
-  expected = addNode(deepClone(treeState), [], 'file');
+  expected = addNode(deepClone(treeState), [], false);
   act(() => {
-    add([], 'file');
+    add([], false);
   });
   expect(result.current.treeState).toEqual(expected);
 
-  expected = addNode(deepClone(treeState), [4], 'folder');
+  expected = addNode(deepClone(treeState), [4], true);
   act(() => {
-    add([4], 'folder');
+    add([4], true);
   });
   expect(result.current.treeState).toEqual(expected);
 
   try {
-    expected = addNode(deepClone(treeState), [1], 'folder');
+    expected = addNode(deepClone(treeState), [1], true);
   } catch (e) {
     expect(e.message).toEqual('can\'t add node to a file!!');
   }
@@ -290,25 +290,25 @@ test('onChange', () => {
     },
   ]);
 
-  expectedState = addNode(deepClone(result.current.treeState), path, 'file');
-  act(() => { reducers.addNode(path, 'file'); });
+  expectedState = addNode(deepClone(result.current.treeState), path, false);
+  act(() => { reducers.addNode(path, false); });
   expect(onChange.mock.calls[3]).toEqual([
     expectedState,
     {
       type: 'addNode',
       path,
-      params: ['file'],
+      params: [false],
     },
   ]);
 
-  expectedState = addNode(deepClone(result.current.treeState), path, 'folder');
-  act(() => { reducers.addNode(path, 'folder'); });
+  expectedState = addNode(deepClone(result.current.treeState), path, true);
+  act(() => { reducers.addNode(path, true); });
   expect(onChange.mock.calls[4]).toEqual([
     expectedState,
     {
       type: 'addNode',
       path,
-      params: ['folder'],
+      params: [true],
     },
   ]);
 
