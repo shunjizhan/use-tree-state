@@ -20,7 +20,11 @@ import { testData } from './test/testData';
 
 const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => {
   const [treeState, setTreeState] = useState(null);
-  const [event, setEvent] = useState(null);
+  const [event, setEvent] = useState({
+    type: 'initialization',
+    path: null,
+    params: [],
+  });
 
   const {
     initCheckedStatus,

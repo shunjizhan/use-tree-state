@@ -257,9 +257,19 @@ test('onChange', () => {
   const path = [];
   const newName = 'Republic of Gamers';
 
+  expectedState = initializedTestData;
+  expect(onChange.mock.calls[0]).toEqual([
+    expectedState,
+    {
+      type: 'initialization',
+      path: null,
+      params: [],
+    },
+  ]);
+
   expectedState = checkNode(deepClone(result.current.treeState), path, 1);
   act(() => { reducers.checkNode(path, 1); });
-  expect(onChange.mock.calls[0]).toEqual([
+  expect(onChange.mock.calls[1]).toEqual([
     expectedState,
     {
       type: 'checkNode',
@@ -270,7 +280,7 @@ test('onChange', () => {
 
   expectedState = renameNode(deepClone(result.current.treeState), path, newName);
   act(() => { reducers.renameNode(path, newName); });
-  expect(onChange.mock.calls[1]).toEqual([
+  expect(onChange.mock.calls[2]).toEqual([
     expectedState,
     {
       type: 'renameNode',
@@ -281,7 +291,7 @@ test('onChange', () => {
 
   expectedState = deleteNode(deepClone(result.current.treeState), path);
   act(() => { reducers.deleteNode(path); });
-  expect(onChange.mock.calls[2]).toEqual([
+  expect(onChange.mock.calls[3]).toEqual([
     expectedState,
     {
       type: 'deleteNode',
@@ -292,7 +302,7 @@ test('onChange', () => {
 
   expectedState = addNode(deepClone(result.current.treeState), path, false);
   act(() => { reducers.addNode(path, false); });
-  expect(onChange.mock.calls[3]).toEqual([
+  expect(onChange.mock.calls[4]).toEqual([
     expectedState,
     {
       type: 'addNode',
@@ -303,7 +313,7 @@ test('onChange', () => {
 
   expectedState = addNode(deepClone(result.current.treeState), path, true);
   act(() => { reducers.addNode(path, true); });
-  expect(onChange.mock.calls[4]).toEqual([
+  expect(onChange.mock.calls[5]).toEqual([
     expectedState,
     {
       type: 'addNode',
@@ -314,7 +324,7 @@ test('onChange', () => {
 
   expectedState = renameToPikachuNTimes(deepClone(result.current.treeState), path, 5);
   act(() => { reducers.renameToPikachuNTimes(path, 5); });
-  expect(onChange.mock.calls[5]).toEqual([
+  expect(onChange.mock.calls[6]).toEqual([
     renameToPikachuNTimes(deepClone(result.current.treeState), path, 5),
     {
       type: 'renameToPikachuNTimes',
@@ -325,7 +335,7 @@ test('onChange', () => {
 
   expectedState = newState;
   act(() => { reducers.setTreeState(newState); });
-  expect(onChange.mock.calls[6]).toEqual([
+  expect(onChange.mock.calls[7]).toEqual([
     expectedState,
     {
       type: 'setTreeState',
