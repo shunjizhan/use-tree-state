@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
+    "watch": "yarn nodemon --watch src/ -C -e ts,js -x 'yarn build'",
     "prepublish": "yarn build",
     "prebuild": "rm -rf dist/",
     "build": "webpack --config webpack.config.js",
@@ -31,6 +32,7 @@
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "jest": "^27.0.1",
+    "nodemon": "^2.0.7",
     "react": "^16.8.0 || ^17",
     "react-dom": "^16.8.0 || ^17",
     "webpack": "^5.37.1",
