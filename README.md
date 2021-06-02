@@ -257,7 +257,7 @@ We chose to use path to find target node as the primary interface because:
 - this is the fastest way to find a target node
 - we can dynamically general path in <Tree /> component that uses this hook, which perfectly matches the reducer API. [example](https://github.com/shunjizhan/react-folder-tree/blob/master/src/components/TreeNode/TreeNode.jsx#L30)
 
-However, we can easily implement custom reducer to use other props (such as name) to find a target node. We provided a util ` (propName: string, targetValue: string): array` to help achieve this.
+However, we can easily implement custom reducer to use other props (such as name) to find a target node. We provided a util `findTargetPathByProp(root: tree-state-obj, propName: string, targetValue: string): array` to help achieve this.
 ```ts
 import { findTargetPathByProp } from 'use-tree-state';
 
