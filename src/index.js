@@ -43,8 +43,8 @@ const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => 
   };
 
   const getExternalReducer = (reducer, name) => (path, ...params) => {
-    const e = getEvent(name, path, ...params);
-    const newState = reducer(treeState, path, ...params);
+    const e = getEvent(name, [...path], ...params);
+    const newState = reducer(treeState, [...path], ...params);
 
     setEvent(e);
     setTreeState(newState);
