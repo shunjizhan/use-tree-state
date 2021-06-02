@@ -16,6 +16,8 @@ import {
   findTargetPathByProp,
 } from './utils';
 
+import { testData } from './test/testData';
+
 const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => {
   const [treeState, setTreeState] = useState(null);
   const [event, setEvent] = useState(null);
@@ -74,6 +76,7 @@ const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => 
 
 export default useTreeState;
 export {
+  testData,
   findTargetNode,
   findAllTargetPathByProp,
   findTargetPathByProp,
