@@ -1,12 +1,56 @@
 {
   "name": "use-tree-state",
   "version": "1.0.0",
-  "description": "React hook to easily manage tree state",
+  "description": "A super-light and customizable React hook to manage tree state like never before",
   "main": "dist/use-tree-state.bundle.js",
-  "repository": "git@github.com:shunjizhan/use-tree-state.git",
+  "files": [
+    "dist/use-tree-state.bundle.js"
+  ],
+  "homepage": "https://github.com/shunjizhan/use-tree-state",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:shunjizhan/use-tree-state.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shunjizhan/use-tree-state/issues"
+  },
   "author": "Shunji Zhan <shunhahaha@live.com>",
   "license": "MIT",
   "private": false,
+  "keywords": [
+    "react",
+    "react-hooks",
+    "hook",
+    "custom-hook",
+    "react-state-management",
+    "tree-state",
+    "react-state",
+    "react-state-hook",
+    "state-management",
+    "treeview",
+    "recursion",
+    "tree-structure",
+    "npm-package",
+    "npm-module",
+    "folder-picker",
+    "folder-viewer",
+    "recursion-problem",
+    "folder-structure",
+    "folder-tooling",
+    "folder-tree",
+    "recursion-tree",
+    "recursions",
+    "recursion",
+    "tree-structure",
+    "treeview",
+    "folder-viewer",
+    "folder-structure",
+    "folder-tooling",
+    "treeview-control",
+    "tree-node",
+    "treeview-component",
+    "recursion-tree"
+],
   "scripts": {
     "watch": "yarn nodemon --watch src/ -C -e ts,js -x 'yarn build'",
     "prepublish": "yarn build",

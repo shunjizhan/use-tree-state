@@ -1,11 +1,13 @@
 # Use Tree State
-A super-light and customizable React hook to manage tree state like never before. It supports:  
-✔️ built in CRUD handlers: add, modify, and delete tree nodes with 1 line of code  
-✔️ custom handlers: define any custom state transition for your need  
-✔️ half check (indeterminate check): auto calculate corresponding checked status for all nodes
-✔️ tree state onChange listener
+A super-light and customizable React hook to manage tree state like never before ✨✨
 
-An example package that uses this hook internally can be found [here](https://www.npmjs.com/package/react-folder-tree).
+An example package that uses this hook internally: [react-folder-tree](https://www.npmjs.com/package/react-folder-tree)
+## Features
+✅ **built in CRUD handlers**: add, modify, and delete tree nodes with 1 line of code  
+✅ **custom handlers**: define any custom state transition for your need  
+✅ **half check** (indeterminate check): auto calculate corresponding checked status for all nodes  
+✅ **tree state onChange listener**  
+
 
 ## Usage
 ### 🌀 install
@@ -26,33 +28,28 @@ const TreeApp = () => {
 ```
 
 ### 🌀 custom initialization
-Tree state data is an object that descibes a nested tree node structure. There are a couple reserved keys for internal use:
-- **name**(string): node's name
-- **checked**(1 | 0 | 0.5): checked status, 1 for checked, 0 for unchecked, 0.5 for half checked
-- **isOpen**(bool): can we see it's children (parant node only)
-- **children**(array): this node's children (parent node only)
-- **_id**(int): internal id
-
-We can use any other keys to carry extra info about this node, such as url, type, nickname...
-
-An example state looks like
+Initial tree state is an object that describes a nested tree node structure, which looks like:
 ```jsx
 {
-  // reserved keys
-  name: 'root node',   
-  checked (optional): 0 (unchecked, default) | 0.5 (half checked) | 1 (checked),
-  isOpen (optional): false (default) | true,
-  children (optional): [array of tree node],
+  // reserved keys, can customize initial value
+  name: 'root node',  
+  checked (optional): 0 (unchecked, default) | 0.5 (half checked) | 1(checked),
+  isOpen (optional): true (default) | false,
+  children (optional): [array of treenode],
 
-  // not reserved
-  nickname (optional): 'Goku',
-  url (optional): 'www.dragonball.com',
+  // internal keys, don't customize plz
+  path: [],    // path is an array of indexes to this node from root node
+  _id: 0,
+
+  // not reserved, can carry any extra info about this node
+  nickname (optional): 'pikachu',
+  url (optional): 'www.pokemon.com',
+  ...
 }
 ```
+`checked` and `isOpen` status could be auto initialized by props `initCheckedStatus` and `initOpenStatus`. We can also provide data with custom `checked` and `isOpen` status, and set `initCheckedStatus` and `initOpenStatus` to `'custom'`.
 
-We can pass in options to specify how to auto initialize `checked`/`isOpen` status for all nodes.
-
-If we pass in `data` with custom state (not all nodes have the same `checked`/`isOpen` status), please specify `custom` for these status, otherwise custom state will be overwrote by the default option.
+Example:
 ```ts
 const { treeState } = useTreeState({
   data: testData,
@@ -64,7 +61,11 @@ const { treeState } = useTreeState({
 ```
 
 ### 🌀 update tree state
-There are a couple built in tree state reducers that can be used to updateFor tree state conveniently.
+There are a couple built in tree state reducers that can update tree state conveniently.
+
+Note that these `reducers` are slightly different than `redux reducers`. They are `wrapped reducers` which are functions that
+
+`f(path, ...args) => update state internally`
 
 For more details please refer to [Built-in Reducers](#built-in-reducers) section.
 ```ts
@@ -151,13 +152,13 @@ const treeState = {
 ```
 
 ### • `reducers.checkNode(path: array)`
-Check a target node (internally set `checked` = 1), if target node is already checked, this will uncheck it (internally set `checked` = 0).
+Check the target node (internally set `checked` = 1), if target node is already checked, this will uncheck it (internally set `checked` = 0).
 
 It will also update checked status for all other nodes:
 - if we checked a parent node, all children nodes will also be checked
 - if some (but not all) of a node's children are checked, this node becomes half check (internally set `checked` = 0.5)
 ### • `reducers.toggleOpen(path: array, isOpen: bool)`
-Set the open status for a parent node. `open: false` usually means in UI we shouldn't see it's children.
+Set the open status `isOpen` for the target node. `isOpen: false` usually means in UI we shouldn't see it's children.
 
 **This only works for parent nodes**, which are the nodes that has `children` in tree state.
 
@@ -173,13 +174,21 @@ Add a node as a children of target node. `hasChildren: true` means this new node
 **This only works for parent nodes**.
 
 ### • `reducers.setTreeState(newState: tree-state-object)`
-Instead of 'update' the tree state, this will set whole tree state directly. (n)
+Instead of 'update' the tree state, this will set whole tree state directly. Didn't test this method, but leave this api anyways, so use with cautions! And plz [open an issue](https://github.com/shunjizhan/use-tree-state/issues) if it doesn't work : )
 
 ## Custom Reducers
 There are two ways to build custom state transition functions. We provided a `findTargetNode` util to help find the target node.
 
-### 🌀 wrap custom reducer in the hook
-We can build any custom reducers of format `myReducer(root: tree-state-obj, path: array | null, ...params): tree-state`, then pass it to the hook constructor. Hook will wrap it internally, and then we can use it like `reducers.myReducer(path: array | null, ...params)` to update the treeState. 
+### 🌀 method 1: wrap custom reducers (recommended)
+We can build any custom reducers of format
+
+`myReducer(root: tree-state-obj, path: array | null, ...params): tree-state-obj`
+
+and pass it to the hook constructor. Hook will then expose a wrapped version of it. Then we can use it like
+
+`reducers.myReducer(path: array | null, ...params)` 
+
+to update the treeState. 
 ```ts
 import useTreeState, {
   testData,
@@ -218,8 +227,7 @@ const TreeApp = () => {
 };
 ```
 
-### 🌀 set tree state from outside
-This way is **not recommended**, didn't test it.
+### 🌀 method 2: set tree state from outside
 ```ts
 const TreeApp = () => {
   const { treeState, reducers } = useTreeState({ data: testData });
@@ -251,18 +259,25 @@ const TreeApp = () => {
 };
 ```
 
-### find node by name
+### 🌀 find node by name (or by any other keys)
 We chose to use path to find target node as the primary interface because:
-- path is always uniq
+- path is always unique
 - this is the fastest way to find a target node
-- we can dynamically general path in <Tree /> component that uses this hook, which perfectly matches the reducer API. [example](https://github.com/shunjizhan/react-folder-tree/blob/master/src/components/TreeNode/TreeNode.jsx#L30)
+- we can dynamically general path in <Tree /> component, which perfectly matches the reducer API. [example](https://github.com/shunjizhan/react-folder-tree/blob/master/src/components/TreeNode/TreeNode.jsx#L30)
 
-However, we can easily implement custom reducer to use other props (such as name) to find a target node. We provided a util `findTargetPathByProp(root: tree-state-obj, propName: string, targetValue: string): array` to help achieve this.
+However, sometimes we might want to use other props (such as name) to find a target node, this can also be done easily by a custom reducer. We provided two utils to help achieve this:
+
+- `findTargetPathByProp(root: tree-state-obj, propName: string, targetValue: string): array<int>` 
+
+- `findAllTargetPathByProp(root: tree-state-obj, propName: string, targetValue: string): array<array<int>>` 
 ```ts
 import { findTargetPathByProp } from 'use-tree-state';
 
+// our custom reducer
 const renameToPikachuNTimes = (root, targetName, n) => {
-  const path = findTargetPathByProp('name', targetName);    // <== here!!!
+  // only need this one line to find path first
+  // assume 'name' is unique
+  const path = findTargetPathByProp(root, 'name', targetName);    // <== here!!!
 
   // rest is just the same
   const targetNode = findTargetNode(root, path);
