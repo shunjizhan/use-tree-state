@@ -1,6 +1,6 @@
 {
   "name": "use-tree-state",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A super-light and customizable React hook to manage tree state like never before",
   "main": "dist/use-tree-state.bundle.js",
   "files": [
@@ -50,7 +50,7 @@
     "tree-node",
     "treeview-component",
     "recursion-tree"
-],
+  ],
   "scripts": {
     "watch": "yarn nodemon --watch src/ -C -e ts,js -x 'yarn build'",
     "prepublish": "yarn build",
