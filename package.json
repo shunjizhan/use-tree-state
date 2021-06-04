@@ -1,6 +1,6 @@
 {
   "name": "use-tree-state",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A super-light and customizable React hook to manage tree state like never before",
   "main": "dist/use-tree-state.bundle.js",
   "files": [

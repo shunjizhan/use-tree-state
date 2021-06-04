@@ -33,7 +33,7 @@ const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => 
   useEffect(() => {
     const initState = initializeTreeState(data, initCheckedStatus, initOpenStatus);
     setTreeState(initState);
-  }, [data, initCheckedStatus, initOpenStatus]);
+  }, []);
 
   useEffect(() => {
     if (typeof onChange === 'function' && treeState && event) {
