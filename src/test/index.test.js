@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import useTreeState from '../index';
+import useTreeState, { findTargetPathByProp } from '../index';
 import {
   testData,
   initializedTestData,
@@ -208,8 +208,17 @@ test('custom reducer', () => {
     return { ...root };
   };
 
+  const renameToGokuByName = (root, _, targetName) => {
+    const path = findTargetPathByProp(root, 'name', targetName);
+    const targetNode = findTargetNode(root, path);
+    targetNode.name = 'Goku';
+
+    return { ...root };
+  };
+
   const customReducers = {
     renameToPikachuNTimes,
+    renameToGokuByName,
   };
 
   const { result } = renderHook(() => useTreeState({
@@ -227,6 +236,11 @@ test('custom reducer', () => {
     reducers.renameToPikachuNTimes([3, 1], 3);
   });
   expect(treeState.children[3].children[1].name).toEqual('pikachupikachupikachu');
+
+  act(() => {
+    reducers.renameToGokuByName(null, 'pikachupikachupikachu');
+  });
+  expect(treeState.children[3].children[1].name).toEqual('Goku');
 });
 
 test('onChange', () => {

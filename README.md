@@ -37,7 +37,7 @@ Initial tree state is an object that describes a nested tree node structure, whi
   isOpen (optional): true (default) | false,
   children (optional): [array of treenode],
 
-  // internal keys, don't customize plz
+  // internal keys (auto generated), plz don't include them in the initial data
   path: [],    // path is an array of indexes to this node from root node
   _id: 0,
 
@@ -195,6 +195,7 @@ import useTreeState, {
   findTargetNode,
 } from 'use-tree-state';
 
+// this app demos how to build a custom reducer that rename a node to 'pikachu'
 const TreeApp = () => {
   // our custom reducer
   const renameToPikachuNTimes = (root, path, n) => {
@@ -260,6 +261,8 @@ const TreeApp = () => {
 ```
 
 ### 🌀 find node by name (or by any other keys)
+[⚡️live exmaple](https://codesandbox.io/s/react-playground-forked-55bt9?file=/index.js)
+
 We chose to use path to find target node as the primary interface because:
 - path is always unique
 - this is the fastest way to find a target node
@@ -273,20 +276,21 @@ However, sometimes we might want to use other props (such as name) to find a tar
 ```ts
 import { findTargetPathByProp } from 'use-tree-state';
 
-// our custom reducer
-const renameToPikachuNTimes = (root, targetName, n) => {
-  // only need this one line to find path first
-  // assume 'name' is unique
+// our custom reducer, note that we omit the `path` param as _ since we don't need it
+const renameNodeByTargetName = (root, _, targetName, newName) => {
+  // only need this one extra line to find path first (assume 'name' is unique)
   const path = findTargetPathByProp(root, 'name', targetName);    // <== here!!!
 
-  // rest is just the same
+  // then everything else is just the same
   const targetNode = findTargetNode(root, path);
-  targetNode.name = 'pika'.repeat(n);
+  targetNode.name = newName;
 
   return { ...root };
 };
-
-// ......
+```
+then if we want to rename a node `snorlax` to `pikachu`, we can do:
+```ts
+reducers.renameNodeByTargetName(null, 'snorlax', 'pikachu');
 ```
 
 ## Bugs? Questions? Contributions?
