@@ -41,7 +41,7 @@ Initial tree state is an object that describes a nested tree node structure, whi
   path: [],    // path is an array of indexes to this node from root node
   _id: 0,
 
-  // not reserved, can carry any extra info about this node
+  // all other keys are not reserved, can carry any extra info about this node
   nickname (optional): 'pikachu',
   url (optional): 'www.pokemon.com',
   ...
@@ -65,48 +65,52 @@ There are a couple built in tree state reducers that can update tree state conve
 
 Note that these `reducers` are slightly different than `redux reducers`. They are `wrapped reducers` which are functions that
 
-`f(path, ...args) => update state internally`
+`f(path: array, ...args) => update state internally`  
+or   
+`fByProp(propName: string, targetValue: any, ...args) => update state internally` (WIP)
 
 For more details please refer to [Built-in Reducers](#built-in-reducers) section.
 ```ts
 const TreeApp = () => {
   const { treeState, reducers } = useTreeState({ data: testData });
   const {
+    // handlers using node's path to find target
     checkNode,
     toggleOpen,
     renameNode,
     deleteNode,
     addNode,
+
+    // handlers using any node's property to find target (WIP)
+    checkNodeByProp,
+    toggleOpenByProp,
+    renameNodeByProp,
+    deleteNodeByProp,
+    addNodeByProp,
   } = reducers;
 
+  const check_first_node = () => checkNode([0]);
+  const check_node_whos_name_is_Goku = () => checkNodeByProp('name', 'Goku');
+
+  const open_first_node = () => toggleOpen([0], 1);
+  const open_node_whos_url_is_www = () => toggleOpenByProp('url', 'www', 1);
+  const close_node_whos_num_is_123 = () => toggleOpenByProp('num', 123, 0);
+
+  const rename_third_node_to_pikachu = () => renameNode([2], 'pikachu');
+  const rename_snorlax_node_to_pikachu = () => renameNode('name', 'snorlax', 'pikachu');
+
+  const remove_fourth_node = () => deleteNode([3]);
+  const remove_unnecessary_node = () => deleteNodeByProp('necessary', false);
+
+  const add_leaf_node_in_root_node = () => addNode([], false);
+  const add_parent_node_in_Pokemon_node = () => addNodeByProp('type', 'Pokemon', true);
+
   return (<>
-    <Button onClick={ () => checkNode([0]) }>
-      check the first node
-    </Button>
+    <button onClick={ check_first_node  }>
+      check first node
+    </button>
 
-    <Button onClick={ () => toggleOpen([0], 1) }>
-      open the first parent node
-    </Button>
-
-    <Button onClick={ () => toggleOpen([1], 0) }>
-      close the second parent node
-    </Button>
-
-    <Button onClick={ () => renameNode([2], 'pikachu') }>
-      rename the third node to pikachu
-    </Button>
-
-    <Button onClick={ () => deleteNode([3]) }>
-      remove the fourth node
-    </Button>
-
-    <Button onClick={ () => addNode([], false) }>
-      add a leaf node as root node's children
-    </Button>
-
-    <Button onClick={ () => addNode([], true) }>
-      add a parent node as root node's children
-    </Button>
+    ...
 
     <Tree state={ treeState } />
   </>);
@@ -131,7 +135,16 @@ const { treeState } = useTreeState({
 
 
 ## Built-in Reducers
-All built in reducers will use `path` param to find the tree node to operate on. `path` is an array of indexes from root to the target node.
+There are two types of built in reducers (or call it handlers if you prefer) that differ in how they find target node to operate on.
+
+#### 1) find target node by path
+- `reducers.checkNode`
+- `reducers.toggleOpen`
+- `reducers.renameNode`
+- `reducers.deleteNode`
+- `reducers.addNode`
+
+their format is `f(path: array, ...args) => update state internally`, `path` is an array of indexes from root to the target node.
 
 An example that shows each node and corresponding path
 ```ts
@@ -151,29 +164,59 @@ const treeState = {
 };
 ```
 
-### • `reducers.checkNode(path: array)`
+#### 2) find target node by property (can be any property in tree ndoe data)
+**These are working in progress, will be out ASAP**
+
+- `reducers.checkNodeByProp`
+- `reducers.toggleOpenByProp`
+- `reducers.renameNodeByProp`
+- `reducers.deleteNodeByProp`
+- `reducers.addNodeByProp`
+
+their format is `fByProp(propName: string, targetValue: any, ...args) => update state internally`
+
+
+### 🌀 reducers details
+
+#### • `checkNode(path: array)`
+#### • `checkNodeByProp(propName: string, targetValue: any)`
 Check the target node (internally set `checked` = 1), if target node is already checked, this will uncheck it (internally set `checked` = 0).
 
 It will also update checked status for all other nodes:
 - if we checked a parent node, all children nodes will also be checked
 - if some (but not all) of a node's children are checked, this node becomes half check (internally set `checked` = 0.5)
-### • `reducers.toggleOpen(path: array, isOpen: bool)`
+
+<br>
+
+#### • `toggleOpen(path: array, isOpen: bool)`
+#### • `toggleOpenByProp(propName: string, targetValue: any, isOpen: bool)`
 Set the open status `isOpen` for the target node. `isOpen: false` usually means in UI we shouldn't see it's children.
 
 **This only works for parent nodes**, which are the nodes that has `children` in tree state.
 
-### • `reducers.renameNode(path: array, newName: string)`
+<br>
+
+#### • `renameNode(path: array, newName: string)`
+#### • `renameNodeByProp(propName: string, targetValue: any, newName: string)`
 You know what it is.
 
-### • `reducers.deleteNode(path: array)`
+<br>
+
+#### • `deleteNode(path: array)`
+#### • `deleteNodeByProp(propName: string, targetValue: any)`
 Delete the target node. If target node is a parent, all of it's children will also be removed.
 
-### • `reducers.addNode(path: array, hasChildren: bool)`
+<br>
+
+#### • `addNode(path: array, hasChildren: bool)`
+#### • `addNodeByProp(propName: string, targetValue: any, hasChildren: bool)`
 Add a node as a children of target node. `hasChildren: true` means this new node is a parent node, otherwise it is a leaf node.
 
 **This only works for parent nodes**.
 
-### • `reducers.setTreeState(newState: tree-state-object)`
+<br>
+
+#### • `setTreeState(newState: tree-state-object)`
 Instead of 'update' the tree state, this will set whole tree state directly. Didn't test this method, but leave this api anyways, so use with cautions! And plz [open an issue](https://github.com/shunjizhan/use-tree-state/issues) if it doesn't work : )
 
 ## Custom Reducers
@@ -218,9 +261,9 @@ const TreeApp = () => {
   }
 
   return (<>
-    <Button onClick={ renameFirstNodeToPikaPikaPika }>
+    <button onClick={ renameFirstNodeToPikaPikaPika }>
       pika pika
-    </Button>
+    </button>
 
     <Tree state={ treeState } />
   </>);
@@ -251,9 +294,9 @@ const TreeApp = () => {
   }
 
   return (<>
-    <Button onClick={ renameFirstNodeToPikaPikaPika }>
+    <button onClick={ renameFirstNodeToPikaPikaPika }>
       pika pika
-    </Button>
+    </button>
 
     <Tree state={ treeState } />
   </>);
