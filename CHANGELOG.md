@@ -1,3 +1,6 @@
+# v1.0.4 (2021.6.5)
+README update
+
 # v1.0.3 (2021.6.5)
 solved a bug for infinite render. Internally shouldn't call initialize tree state when data change, since if data is defined in the functional component, each time it is a different reference.
 
