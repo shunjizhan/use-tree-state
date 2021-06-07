@@ -18,7 +18,9 @@ import {
 
 import { testData } from './test/testData';
 
-const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => {
+const useTreeState = ({
+  data, onChange, options = {}, customReducers = {},
+}) => {
   const [treeState, setTreeState] = useState(null);
   const [event, setEvent] = useState({
     type: 'initialization',
@@ -48,19 +50,24 @@ const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => 
     setTreeState(state);
   };
 
-  const getExternalReducer = (reducer, name) => (path, ...params) => {
+  const getExternalReducer = (reducer, name) => (path, ...args) => {
     const _path = path ? [...path] : null;
-    const e = getEvent(name, _path, ...params);
-    const newState = reducer(treeState, _path, ...params);
+    const e = getEvent(name, _path, ...args);
+    const newState = reducer(treeState, _path, ...args);
 
     setEvent(e);
     setTreeState(newState);
   };
 
+  const getReducerByProp = reducer => (propName, targetValue, ...args) => {
+    const path = findTargetPathByProp(treeState, propName, targetValue);
+    return path ? reducer(path, ...args) : null;
+  };
+
   const _customReducers = Object.fromEntries(
     Object.entries(customReducers).map(
-      ([name, f]) => ([name, getExternalReducer(f, name)])
-    )
+      ([name, f]) => ([name, getExternalReducer(f, name)]),
+    ),
   );
 
   const reducers = {
@@ -72,6 +79,12 @@ const useTreeState = ({ data, onChange, options = {}, customReducers = {} }) => 
     toggleOpen: getExternalReducer(toggleOpen, 'toggleOpen'),
     ..._customReducers,
   };
+
+  reducers.checkNodeByProp =  getReducerByProp(reducers.checkNode);
+  reducers.renameNodeByProp =  getReducerByProp(reducers.renameNode);
+  reducers.deleteNodeByProp =  getReducerByProp(reducers.deleteNode);
+  reducers.addNodeByProp =  getReducerByProp(reducers.addNode);
+  reducers.toggleOpenByProp =  getReducerByProp(reducers.toggleOpen);
 
   return {
     treeState,

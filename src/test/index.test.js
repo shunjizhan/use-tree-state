@@ -7,12 +7,13 @@ import {
 } from './testData';
 
 import {
-  findTargetNode,
   deepClone,
-  checkNode,
+  findTargetNode,
   setAllCheckedStatus,
-  toggleOpen,
   setAllOpenStatus,
+
+  checkNode,
+  toggleOpen,
   renameNode,
   deleteNode,
   addNode,
@@ -61,128 +62,306 @@ describe('initialize tree state', () => {
   });
 });
 
-test('check node', () => {
-  const { result } = renderHook(() => useTreeState({ data: testData }));
-  const { treeState, reducers } = result.current;
-  const { checkNode: check } = reducers;
-  let expected;
+describe('check node', () => {
+  test('by path', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { checkNode: check } = reducers;
+    let expected;
 
-  expected = checkNode(deepClone(treeState), [], 1);
-  act(() => {
-    check([], 1);
-  });
-  expect(result.current.treeState).toEqual(expected);
+    expected = checkNode(deepClone(treeState), [], 1);
+    act(() => {
+      check([], 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
 
-  expected = checkNode(deepClone(treeState), [1], 0);
-  act(() => {
-    check([1], 0);
-  });
-  expect(result.current.treeState).toEqual(expected);
+    expected = checkNode(deepClone(treeState), [1], 0);
+    act(() => {
+      check([1], 0);
+    });
+    expect(result.current.treeState).toEqual(expected);
 
-  expected = checkNode(deepClone(treeState), [3, 1], 0);
-  act(() => {
-    check([3, 1], 0);
+    expected = checkNode(deepClone(treeState), [3, 1], 0);
+    act(() => {
+      check([3, 1], 0);
+    });
+    expect(result.current.treeState).toEqual(expected);
   });
-  expect(result.current.treeState).toEqual(expected);
+
+  test('by prop', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { checkNodeByProp: checkByProp } = reducers;
+    let expected;
+
+    expected = deepClone(treeState);
+    act(() => {
+      checkByProp('name', 'not exist', 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = deepClone(treeState);
+    act(() => {
+      checkByProp('not exist', 123, 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = checkNode(deepClone(treeState), [], 1);
+    act(() => {
+      checkByProp('name', 'All Cryptos', 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = checkNode(deepClone(treeState), [4, 1], 0);
+    act(() => {
+      checkByProp('_id', 10, 0);
+    });
+    expect(result.current.treeState).toEqual(expected);
+  });
 });
 
-test('toggle open', () => {
-  const { result } = renderHook(() => useTreeState({ data: testData }));
-  const { treeState, reducers } = result.current;
-  const { toggleOpen: toggle } = reducers;
-  let expected;
+describe('toggle open', () => {
+  test('by path', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { toggleOpen: toggle } = reducers;
+    let expected;
 
-  expected = toggleOpen(deepClone(treeState), [], 1);
-  act(() => {
-    toggle([], 1);
+    expected = toggleOpen(deepClone(treeState), [], 1);
+    act(() => {
+      toggle([], 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = toggleOpen(deepClone(treeState), [3], 0);
+    act(() => {
+      toggle([3], 0);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    try {
+      toggle([3, 1], 0);
+    } catch (e) {
+      expect(e.message).toEqual('only parent node (folder) can be opened!!');
+    }
   });
-  expect(result.current.treeState).toEqual(expected);
 
-  expected = toggleOpen(deepClone(treeState), [3], 0);
-  act(() => {
-    toggle([3], 0);
+  test('by prop', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { toggleOpenByProp: toggleByProp } = reducers;
+    let expected;
+
+    expected = deepClone(treeState);
+    act(() => {
+      toggleByProp('name', 'not exist', 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = deepClone(treeState);
+    act(() => {
+      toggleByProp('not exist', 123, 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = toggleOpen(deepClone(treeState), [], 1);
+    act(() => {
+      toggleByProp('name', 'All Cryptos', 1);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = toggleOpen(deepClone(treeState), [4, 3], 0);
+    act(() => {
+      toggleByProp('_id', 15, 0);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    try {
+      toggleByProp('name', 'Chainlink', 0);
+    } catch (e) {
+      expect(e.message).toEqual('only parent node (folder) can be opened!!');
+    }
   });
-  expect(result.current.treeState).toEqual(expected);
-
-  try {
-    toggleOpen(deepClone(treeState), [3, 1], 0);
-  } catch (e) {
-    expect(e.message).toEqual('only parent node (folder) can be opened!!');
-  }
 });
 
-test('rename node', () => {
-  const { result } = renderHook(() => useTreeState({ data: testData }));
-  const { treeState, reducers } = result.current;
-  const { renameNode: rename } = reducers;
-  let expected;
+describe('rename node', () => {
+  test('by path', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { renameNode: rename } = reducers;
+    let expected;
 
-  expected = renameNode(deepClone(treeState), [], 'Bitcoin');
-  act(() => {
-    rename([], 'Bitcoin');
-  });
-  expect(result.current.treeState).toEqual(expected);
+    expected = renameNode(deepClone(treeState), [], 'Bitcoin');
+    act(() => {
+      rename([], 'Bitcoin');
+    });
+    expect(result.current.treeState).toEqual(expected);
 
-  expected = renameNode(deepClone(treeState), [1], 'Polkadot');
-  act(() => {
-    rename([1], 'Polkadot');
-  });
-  expect(result.current.treeState).toEqual(expected);
+    expected = renameNode(deepClone(treeState), [1], 'Polkadot');
+    act(() => {
+      rename([1], 'Polkadot');
+    });
+    expect(result.current.treeState).toEqual(expected);
 
-  expected = renameNode(deepClone(treeState), [3, 1], 'Kusama');
-  act(() => {
-    rename([3, 1], 'Kusama');
+    expected = renameNode(deepClone(treeState), [3, 1], 'Kusama');
+    act(() => {
+      rename([3, 1], 'Kusama');
+    });
+    expect(result.current.treeState).toEqual(expected);
   });
-  expect(result.current.treeState).toEqual(expected);
+
+  test('by prop', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { renameNodeByProp: renameByProp } = reducers;
+    let expected;
+    const newName = 'Kusama';
+
+    expected = deepClone(treeState);
+    act(() => {
+      renameByProp('name', 'not exist', newName);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = deepClone(treeState);
+    act(() => {
+      renameByProp('not exist', 123, newName);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = renameNode(deepClone(treeState), [], newName);
+    act(() => {
+      renameByProp('name', 'All Cryptos', newName);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = renameNode(deepClone(treeState), [3, 0], newName);
+    act(() => {
+      renameByProp('_id', 5, newName);
+    });
+    expect(result.current.treeState).toEqual(expected);
+  });
 });
 
-test('add node', () => {
-  const { result } = renderHook(() => useTreeState({ data: testData }));
-  const { treeState, reducers } = result.current;
-  const { addNode: add } = reducers;
-  let expected;
+describe('add node', () => {
+  test('by path', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { addNode: add } = reducers;
+    let expected;
 
-  expected = addNode(deepClone(treeState), [], false);
-  act(() => {
-    add([], false);
+    expected = addNode(deepClone(treeState), [], false);
+    act(() => {
+      add([], false);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = addNode(deepClone(treeState), [4], true);
+    act(() => {
+      add([4], true);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    try {
+      expected = add([1], true);
+    } catch (e) {
+      expect(e.message).toEqual('can\'t add node to a file!!');
+    }
   });
-  expect(result.current.treeState).toEqual(expected);
 
-  expected = addNode(deepClone(treeState), [4], true);
-  act(() => {
-    add([4], true);
+  test('by prop', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { addNodeByProp: addByProp } = reducers;
+    let expected;
+
+    expected = deepClone(treeState);
+    act(() => {
+      addByProp('name', 'not exist', true);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = deepClone(treeState);
+    act(() => {
+      addByProp('not exist', 123, false);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = addNode(deepClone(treeState), [], true);
+    act(() => {
+      addByProp('name', 'All Cryptos', true);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = addNode(deepClone(treeState), [5], false);
+    act(() => {
+      addByProp('name', 'new folder', false);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    try {
+      addByProp('name', 'Ripple', false);
+    } catch (e) {
+      expect(e.message).toEqual('can\'t add node to a file!!');
+    }
   });
-  expect(result.current.treeState).toEqual(expected);
-
-  try {
-    expected = addNode(deepClone(treeState), [1], true);
-  } catch (e) {
-    expect(e.message).toEqual('can\'t add node to a file!!');
-  }
 });
 
-test('delete node', () => {
-  const { result } = renderHook(() => useTreeState({ data: testData }));
-  const { treeState, reducers } = result.current;
-  const { deleteNode: del } = reducers;
+describe('delete node', () => {
+  test('by path', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { deleteNode: del } = reducers;
 
-  let expected = deleteNode(deepClone(treeState), [3, 1]);
-  act(() => {
-    del([3, 1]);
-  });
-  expect(result.current.treeState).toEqual(expected);
+    let expected = deleteNode(deepClone(treeState), [3, 1]);
+    act(() => {
+      del([3, 1]);
+    });
+    expect(result.current.treeState).toEqual(expected);
 
-  expected = deleteNode(deepClone(treeState), [2]);
-  act(() => {
-    del([2]);
-  });
-  expect(result.current.treeState).toEqual(expected);
+    expected = deleteNode(deepClone(treeState), [2]);
+    act(() => {
+      del([2]);
+    });
+    expect(result.current.treeState).toEqual(expected);
 
-  expected = deleteNode(deepClone(treeState), []);
-  act(() => {
-    del([]);
+    expected = deleteNode(deepClone(treeState), []);
+    act(() => {
+      del([]);
+    });
+    expect(result.current.treeState).toEqual(expected);
   });
-  expect(result.current.treeState).toEqual(expected);
+
+  test('by prop', () => {
+    const { result } = renderHook(() => useTreeState({ data: testData }));
+    const { treeState, reducers } = result.current;
+    const { deleteNodeByProp: deleteByProp } = reducers;
+    let expected;
+
+    expected = deepClone(treeState);
+    act(() => {
+      deleteByProp('name', 'not exist');
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = deepClone(treeState);
+    act(() => {
+      deleteByProp('not exist', 123);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = deleteNode(deepClone(treeState), [3, 0]);
+    act(() => {
+      deleteByProp('_id', 5);
+    });
+    expect(result.current.treeState).toEqual(expected);
+
+    expected = deleteNode(deepClone(treeState), []);
+    act(() => {
+      deleteByProp('name', 'All Cryptos');
+    });
+    expect(result.current.treeState).toEqual(expected);
+  });
 });
 
 test('set tree state directly', () => {
