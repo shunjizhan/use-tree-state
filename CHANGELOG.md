@@ -1,3 +1,13 @@
+# v1.1.0 (2021.6.8)
+- added reducers by prop:
+  - checkNodeByProp
+  - toggleOpenByProp
+  - renameNodeByProp
+  - deleteNodeByProp
+  - addNodeByProp
+
+- setup travis pipelien for codecov testing
+- added many badges 🤩
 # v1.0.4 (2021.6.5)
 README update
 
