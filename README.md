@@ -1,4 +1,7 @@
 # Use Tree State
+[![travis build](https://img.shields.io/travis/com/shunjizhan/use-tree-state?logo=travis)](https://travis-ci.com/shunjizhan/use-tree-state) [![codecov](https://codecov.io/gh/shunjizhan/use-tree-state/branch/main/graph/badge.svg?token=R15MSCTFHN)](https://codecov.io/gh/shunjizhan/use-tree-state) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/use-tree-state?color=light%20green&label=only&logo=webpack) ![dependency](https://img.shields.io/badge/dependency-zero-brightgreen?&logo=git)  
+[![npm](https://img.shields.io/npm/v/use-tree-state?logo=npm)](https://www.npmjs.com/package/use-tree-state) [![npm](https://img.shields.io/npm/dw/use-tree-state?logo=DocuSign&color=blue)](https://www.npmjs.com/package/use-tree-state) ![GitHub top language](https://img.shields.io/github/languages/top/shunjizhan/use-tree-state?logo=react)
+
 A super-light and customizable React hook to manage tree state like never before ✨✨
 
 An example package that uses this hook internally: [react-folder-tree](https://www.npmjs.com/package/react-folder-tree)
@@ -65,23 +68,23 @@ There are a couple built in tree state reducers that can update tree state conve
 
 Note that these `reducers` are slightly different than `redux reducers`. They are `wrapped reducers` which are functions that
 
-`f(path: array, ...args) => update state internally`  
+`f(path: array<int>, ...args) => update state internally`  
 or   
-`fByProp(propName: string, targetValue: any, ...args) => update state internally` (WIP)
+`fByProp(propName: string, targetValue: any, ...args) => update state internally`
 
 For more details please refer to [Built-in Reducers](#built-in-reducers) section.
 ```ts
 const TreeApp = () => {
   const { treeState, reducers } = useTreeState({ data: testData });
   const {
-    // handlers using node's path to find target
+    // update state using node's path to find target
     checkNode,
     toggleOpen,
     renameNode,
     deleteNode,
     addNode,
 
-    // handlers using any node's property to find target (WIP)
+    // update state using any node's property to find target
     checkNodeByProp,
     toggleOpenByProp,
     renameNodeByProp,
@@ -144,7 +147,7 @@ There are two types of built in reducers (or call it handlers if you prefer) tha
 - `reducers.deleteNode`
 - `reducers.addNode`
 
-their format is `f(path: array, ...args) => update state internally`, `path` is an array of indexes from root to the target node.
+their format is `f(path: array<int>, ...args) => update state internally`, `path` is an array of indexes from root to the target node.
 
 An example that shows each node and corresponding path
 ```ts
@@ -165,8 +168,6 @@ const treeState = {
 ```
 
 #### 2) find target node by property (can be any property in tree ndoe data)
-**These are working in progress, will be out ASAP**
-
 - `reducers.checkNodeByProp`
 - `reducers.toggleOpenByProp`
 - `reducers.renameNodeByProp`
@@ -178,7 +179,7 @@ their format is `fByProp(propName: string, targetValue: any, ...args) => update 
 
 ### 🌀 reducers details
 
-#### • `checkNode(path: array)`
+#### • `checkNode(path: array<int>)`
 #### • `checkNodeByProp(propName: string, targetValue: any)`
 Check the target node (internally set `checked` = 1), if target node is already checked, this will uncheck it (internally set `checked` = 0).
 
@@ -188,7 +189,7 @@ It will also update checked status for all other nodes:
 
 <br>
 
-#### • `toggleOpen(path: array, isOpen: bool)`
+#### • `toggleOpen(path: array<int>, isOpen: bool)`
 #### • `toggleOpenByProp(propName: string, targetValue: any, isOpen: bool)`
 Set the open status `isOpen` for the target node. `isOpen: false` usually means in UI we shouldn't see it's children.
 
@@ -196,19 +197,19 @@ Set the open status `isOpen` for the target node. `isOpen: false` usually means 
 
 <br>
 
-#### • `renameNode(path: array, newName: string)`
+#### • `renameNode(path: array<int>, newName: string)`
 #### • `renameNodeByProp(propName: string, targetValue: any, newName: string)`
 You know what it is.
 
 <br>
 
-#### • `deleteNode(path: array)`
+#### • `deleteNode(path: array<int>)`
 #### • `deleteNodeByProp(propName: string, targetValue: any)`
 Delete the target node. If target node is a parent, all of it's children will also be removed.
 
 <br>
 
-#### • `addNode(path: array, hasChildren: bool)`
+#### • `addNode(path: array<int>, hasChildren: bool)`
 #### • `addNodeByProp(propName: string, targetValue: any, hasChildren: bool)`
 Add a node as a children of target node. `hasChildren: true` means this new node is a parent node, otherwise it is a leaf node.
 
@@ -225,11 +226,11 @@ There are two ways to build custom state transition functions. We provided a `fi
 ### 🌀 method 1: wrap custom reducers (recommended)
 We can build any custom reducers of format
 
-`myReducer(root: tree-state-obj, path: array | null, ...params): tree-state-obj`
+`myReducer(root: tree-state-obj, path: array<int> | null, ...params): tree-state-obj`
 
 and pass it to the hook constructor. Hook will then expose a wrapped version of it. Then we can use it like
 
-`reducers.myReducer(path: array | null, ...params)` 
+`reducers.myReducer(path: array<int> | null, ...params)` 
 
 to update the treeState. 
 ```ts
