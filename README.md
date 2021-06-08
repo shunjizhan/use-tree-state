@@ -63,6 +63,26 @@ const { treeState } = useTreeState({
 });
 ```
 
+### 🌀 reinitialization
+`reinit` has exactly the same interface as `useTreeState` itself, we can call it with any new data or new options.
+```ts
+const { treeState, reinit } = useTreeState({
+  data: testData,
+  options: {
+    initCheckedStatus: 'checked',   // 'unchecked' (default) | 'checked' | 'custom'
+    initOpenStatus: 'open',         // 'open' (default) | 'closed' | 'custom'
+  }
+});
+
+reinit({
+  data: newData,
+  options: {
+    initCheckedStatus: 'unchecked',
+    initOpenStatus: 'closed',      
+  }
+});
+```
+
 ### 🌀 update tree state
 There are a couple built in tree state reducers that can update tree state conveniently.
 

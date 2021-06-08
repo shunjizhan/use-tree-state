@@ -18,8 +18,9 @@ import {
 
 import { testData } from './test/testData';
 
+const EMPTY = {};
 const useTreeState = ({
-  data, onChange, options = {}, customReducers = {},
+  data, onChange, options = EMPTY, customReducers = EMPTY,
 }) => {
   const [treeState, setTreeState] = useState(null);
   const [event, setEvent] = useState({
@@ -27,14 +28,16 @@ const useTreeState = ({
     path: null,
     params: [],
   });
+  const [reducers, setReducers] = useState({});
 
-  const {
-    initCheckedStatus,
-    initOpenStatus,
-  } = options;
   useEffect(() => {
+    const {
+      initCheckedStatus = 'checked',
+      initOpenStatus = 'open',
+    } = options;
     const initState = initializeTreeState(data, initCheckedStatus, initOpenStatus);
     setTreeState(initState);
+    updateReducers(customReducers);
   }, []);
 
   useEffect(() => {
@@ -64,28 +67,33 @@ const useTreeState = ({
     return path ? reducer(path, ...args) : null;
   };
 
-  const _customReducers = Object.fromEntries(
-    Object.entries(customReducers).map(
-      ([name, f]) => ([name, getExternalReducer(f, name)]),
-    ),
-  );
+  const updateReducers = _customReducers => {
+    // built in reducers by path
+    const newReducers = {
+      setTreeState: _setTreeState,
+      checkNode: getExternalReducer(checkNode, 'checkNode'),
+      renameNode: getExternalReducer(renameNode, 'renameNode'),
+      deleteNode: getExternalReducer(deleteNode, 'deleteNode'),
+      addNode: getExternalReducer(addNode, 'addNode'),
+      toggleOpen: getExternalReducer(toggleOpen, 'toggleOpen'),
+    };
 
-  const reducers = {
-    setTreeState: _setTreeState,
-    checkNode: getExternalReducer(checkNode, 'checkNode'),
-    renameNode: getExternalReducer(renameNode, 'renameNode'),
-    deleteNode: getExternalReducer(deleteNode, 'deleteNode'),
-    addNode: getExternalReducer(addNode, 'addNode'),
-    toggleOpen: getExternalReducer(toggleOpen, 'toggleOpen'),
-    ..._customReducers,
+    // built in reducers by prop
+    newReducers.checkNodeByProp = getReducerByProp(newReducers.checkNode);
+    newReducers.renameNodeByProp = getReducerByProp(newReducers.renameNode);
+    newReducers.deleteNodeByProp = getReducerByProp(newReducers.deleteNode);
+    newReducers.addNodeByProp = getReducerByProp(newReducers.addNode);
+    newReducers.toggleOpenByProp = getReducerByProp(newReducers.toggleOpen);
+
+    // custom reducers
+    Object.entries(_customReducers).forEach(([name, f]) => {
+      newReducers[name] = getExternalReducer(f, name);
+    });
+
+    setReducers(newReducers.checkNode);
   };
 
-  reducers.checkNodeByProp =  getReducerByProp(reducers.checkNode);
-  reducers.renameNodeByProp =  getReducerByProp(reducers.renameNode);
-  reducers.deleteNodeByProp =  getReducerByProp(reducers.deleteNode);
-  reducers.addNodeByProp =  getReducerByProp(reducers.addNode);
-  reducers.toggleOpenByProp =  getReducerByProp(reducers.toggleOpen);
-
+  console.log(reducers);
   return {
     treeState,
     reducers,
