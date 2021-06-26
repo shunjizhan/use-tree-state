@@ -1,6 +1,6 @@
 # Use Tree State
 [![travis build](https://img.shields.io/travis/com/shunjizhan/use-tree-state?logo=travis)](https://travis-ci.com/shunjizhan/use-tree-state) [![codecov](https://codecov.io/gh/shunjizhan/use-tree-state/branch/main/graph/badge.svg?token=R15MSCTFHN)](https://codecov.io/gh/shunjizhan/use-tree-state) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/use-tree-state?color=light%20green&label=only&logo=webpack) ![dependency](https://img.shields.io/badge/dependency-zero-brightgreen?&logo=git)  
-[![npm](https://img.shields.io/npm/v/use-tree-state?logo=npm)](https://www.npmjs.com/package/use-tree-state) [![npm](https://img.shields.io/npm/dw/use-tree-state?logo=DocuSign&color=blue)](https://www.npmjs.com/package/use-tree-state) ![GitHub top language](https://img.shields.io/github/languages/top/shunjizhan/use-tree-state?logo=react)
+[![npm](https://img.shields.io/npm/v/use-tree-state?logo=npm)](https://www.npmjs.com/package/use-tree-state) [![npm](https://img.shields.io/npm/dm/use-tree-state?logo=DocuSign&color=blue)](https://www.npmjs.com/package/use-tree-state) ![GitHub top language](https://img.shields.io/github/languages/top/shunjizhan/use-tree-state?logo=react)
 
 A super-light and customizable React hook to manage tree state like never before ✨✨
 
