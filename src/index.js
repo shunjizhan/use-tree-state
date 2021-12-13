@@ -21,6 +21,7 @@ import { testData } from './test/testData';
 const useTreeState = ({
   data, onChange, options = {}, customReducers = {},
 }) => {
+  const [initialized, setInitialized] = useState(false);
   const [treeState, setTreeState] = useState(null);
   const [event, setEvent] = useState({
     type: 'initialization',
@@ -32,10 +33,16 @@ const useTreeState = ({
     initCheckedStatus,
     initOpenStatus,
   } = options;
+
   useEffect(() => {
-    const initState = initializeTreeState(data, initCheckedStatus, initOpenStatus);
-    setTreeState(initState);
-  }, []);
+    if (!initialized) {
+      const initState = initializeTreeState(data, initCheckedStatus, initOpenStatus);
+      setTreeState(initState);
+      setInitialized(true);
+    } else {
+      setTreeState(data);
+    }
+  }, [data]);
 
   useEffect(() => {
     if (typeof onChange === 'function' && treeState && event) {
